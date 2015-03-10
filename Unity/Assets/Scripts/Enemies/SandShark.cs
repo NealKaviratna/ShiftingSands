@@ -63,11 +63,9 @@ public class SandShark : Enemy {
 
 	// This whole function is jankily rewritten TODO: Fix circlePlayer()
 	State circlePlayer() {
-		this.transform.position = Vector3.Lerp(this.transform.position,
-		                                       new Vector3(target.transform.position.x + 12.0f*Mathf.Sin(Time.time), 
-		            									   0,
-		            									   target.transform.position.z + 12.0f*Mathf.Cos(Time.time)),
-		            						   this.speed*Time.deltaTime/20.0f);
+		Vector3 displacement =  this.transform.position-target.transform.position;
+		Vector3 newPos = Vector3.Slerp (displacement, Vector3.Cross(displacement,Vector3.up), this.speed*Time.deltaTime/20.0f);
+		this.transform.position = newPos + target.transform.position;
 
 		// Lock Sandshark to desert terrain - TODO: account for other objects in desert
 		RaycastHit hit = new RaycastHit();

@@ -59,7 +59,14 @@ public class SpearController : MonoBehaviour {
 		if (isAttacking) {
 			if (currTarget) {
 				if (firstAttack) {
-					currTarget.gameObject.GetComponentInParent<SandShark>().freeze();
+					try {
+						currTarget.gameObject.GetComponentInParent<SandShark>().freeze();
+					}
+					catch {}
+					try {
+						currTarget.gameObject.GetComponentInParent<SandShark>().freeze();
+					}
+					catch{}
 					firstAttack = false;
 				}
 				attack (currTarget);
@@ -87,7 +94,7 @@ public class SpearController : MonoBehaviour {
 			this.firstAttack = true;
 			currTarget = null;
 			isAttacking = false;
-			Destroy(target.gameObject);
+			Destroy(target.parent.gameObject);
 			isReturning = true;
 		}
 	}
