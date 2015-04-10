@@ -222,7 +222,7 @@ public class WiiMoteInputController : MonoBehaviour {
 	void OnApplicationQuit() {
 		wiimote_stop();
 		if (objToDisplay)
-			objToDisplay.renderer.sharedMaterial.shader = Shader.Find ("Diffuse");
+			objToDisplay.GetComponent<Renderer>().sharedMaterial.shader = Shader.Find ("Diffuse");
 	}
 	
 	void OnGUI() {
@@ -327,8 +327,8 @@ public class WiiMoteInputController : MonoBehaviour {
 	
 	void DoDebugTests (int i) {
 		if (wiimoteCount > 0) {
-			if (objToDisplay && objToDisplay.renderer.sharedMaterial.shader != Shader.Find ("Diffuse")) {
-				objToDisplay.renderer.sharedMaterial.shader = Shader.Find ("Diffuse");
+			if (objToDisplay && objToDisplay.GetComponent<Renderer>().sharedMaterial.shader != Shader.Find ("Diffuse")) {
+				objToDisplay.GetComponent<Renderer>().sharedMaterial.shader = Shader.Find ("Diffuse");
 			}
 			
 			if (lightIndicatorCount != wiimoteCount) {
@@ -347,7 +347,7 @@ public class WiiMoteInputController : MonoBehaviour {
 				else {
 					activeColor.a = 0.5f;
 				}
-				expansionPlug.renderer.material.shader = Shader.Find ("Transparent/Diffuse");
+				expansionPlug.GetComponent<Renderer>().material.shader = Shader.Find ("Transparent/Diffuse");
 				SetColorInstance(expansionPlug, activeColor);
 				expansionPlug.gameObject.active = true;
 				/* do detect unplugged - wonky! */
@@ -413,9 +413,9 @@ public class WiiMoteInputController : MonoBehaviour {
 			else SetColorInstance(buttonZ, Color.white);*/
 		}
 		else {
-			if (objToDisplay && enableDebugTests && objToDisplay.renderer.sharedMaterial.shader != Shader.Find ("Transparent/Diffuse")) {
+			if (objToDisplay && enableDebugTests && objToDisplay.GetComponent<Renderer>().sharedMaterial.shader != Shader.Find ("Transparent/Diffuse")) {
 				SetColorShared (objToDisplay, new Color(1.0f,1.0f,1.0f,0.25f));
-				objToDisplay.renderer.sharedMaterial.shader = Shader.Find ("Transparent/Diffuse");
+				objToDisplay.GetComponent<Renderer>().sharedMaterial.shader = Shader.Find ("Transparent/Diffuse");
 			}
 		}
 	}
@@ -438,11 +438,11 @@ public class WiiMoteInputController : MonoBehaviour {
 	
 	/* scene indicator visual helper */
 	void SetColorInstance (Transform someTR, Color newColor) {
-		someTR.renderer.material.color = newColor;
+		someTR.GetComponent<Renderer>().material.color = newColor;
 	}
 	
 	void SetColorShared (Transform someTR, Color newColor) {
-		someTR.renderer.sharedMaterial.color = newColor;
+		someTR.GetComponent<Renderer>().sharedMaterial.color = newColor;
 	}
 
 	public int getWiimoteCount() {

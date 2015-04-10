@@ -13,6 +13,6 @@ public class MaterialLerper : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		this.renderer.material.Lerp(mat1,mat2, Mathf.Sin(Time.time));
+		this.GetComponent<Renderer>().material.Lerp(mat1,mat2, Mathf.Sin(Time.time));
 	}
 }

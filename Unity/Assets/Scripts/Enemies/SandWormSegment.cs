@@ -8,7 +8,7 @@ public class SandWormSegment : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").collider;
+		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").GetComponent<Collider>();
 	}
 	
 	// Update is called once per frame
@@ -18,7 +18,7 @@ public class SandWormSegment : MonoBehaviour {
 		this.transform.eulerAngles = new Vector3(0, this.transform.eulerAngles.y, this.transform.eulerAngles.z);
 
 		//Vector3 target = new Vector3(leader.localPosition.x, leader.localPosition.y, leader.localPosition.z-3f);
-		this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, leader.localPosition, .04f);
+		this.transform.localPosition = Vector3.Lerp(this.transform.localPosition, leader.localPosition, .03f);
 
 
 		// Lock segment to desert terrain - TODO: account for other objects in desert

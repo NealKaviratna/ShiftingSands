@@ -8,9 +8,13 @@ public class SandShark : Enemy {
 	private float timer;
 	private float r;
 
+	public GameObject body;
+
+	public AudioSource playerdeath;
+
 	// Use this for initialization
 	void Start () {
-		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").collider;
+		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").GetComponent<Collider>();
 		this.target = GameObject.FindGameObjectWithTag("Player");
 
 		this.timer = Random.Range(0, 7.0f);
@@ -21,7 +25,7 @@ public class SandShark : Enemy {
 	// Update is called once per frame
 	void Update () {
 		// Spin the sandshark - will probably remove if it doesn't work with Model to be used
-		this.transform.Rotate(Time.deltaTime*500,Time.deltaTime*500,Time.deltaTime*500);
+		body.transform.Rotate(Time.deltaTime*500,Time.deltaTime*500,Time.deltaTime*500);
 
 		// State-Machine
 		switch (this.state) {
@@ -43,10 +47,13 @@ public class SandShark : Enemy {
 	}
 	
 	State findPlayer() {
-		// Move towards target
-		this.transform.position = Vector3.Lerp(this.transform.position,
-		                                       target.transform.position,
-		                                       this.speed*Time.deltaTime/50.0f);
+		// Turn towards target
+		Quaternion q = Quaternion.LookRotation(target.transform.position - this.transform.position);
+		this.transform.rotation = Quaternion.Lerp(this.transform.rotation, q, .015f);
+		this.transform.eulerAngles = new Vector3(0, this.transform.eulerAngles.y, this.transform.eulerAngles.z);
+		
+		// Move forward
+		transform.Translate(Vector3.forward * this.speed * Time.deltaTime);
 
 		// Lock Sandshark to desert terrain - TODO: account for other objects in desert
 		RaycastHit hit = new RaycastHit();
@@ -94,5 +101,12 @@ public class SandShark : Enemy {
 		this.transform.position = Vector3.Lerp(this.transform.position,dest,Time.deltaTime);
 		
 		return State.attacking;
+	}
+
+	void OnTriggerEnter(Collider coll) {
+		if (coll.tag == "Player") {
+			this.playerdeath.Play();
+			FindObjectOfType<SceneTransitionController>().fadeOut = true;
+		}
 	}
 }

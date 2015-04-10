@@ -14,16 +14,18 @@ public class SpearController : MonoBehaviour {
 	private float lastYaw;
 	private float lastRoll;
 
-	private bool isAttacking;
-	private bool isReturning;
+	public bool isAttacking;
+	public bool isReturning;
 
 	private bool firstAttack;
 	private float attackTime;
-	private Transform currTarget;
+	public Transform currTarget;
 
 	// Used for returning spear
-	private Vector3 originalPosition;
-	private Vector3 originalRotation;
+	public Vector3 originalPosition;
+	public Vector3 originalRotation;
+
+	public Renderer shaftRenderer;
 
 	// Use this for initialization
 	void Start () {
@@ -39,6 +41,9 @@ public class SpearController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		//Update blending of spear shader based on height
+		shaftRenderer.material.SetFloat("_Blend", Mathf.Clamp01(this.transform.position.y/500));
+
 		// Take in and smooth WiiInput
 		lastPitch = Mathf.Lerp(lastPitch, 90.0f + WiiInput.GetAxis("Pitch"), Time.deltaTime*3.0f);
 		lastYaw = Mathf.Lerp(lastYaw, WiiInput.GetAxis("Yaw")*yawMultiplier, Time.deltaTime*3.0f);
@@ -49,8 +54,8 @@ public class SpearController : MonoBehaviour {
 
 		// If attack input registered, store current transform info, then begin attacking
 		if (((WiiInput.GetButton("A") && WiiInput.GetButton("B") && Mathf.Abs(WiiInput.GetAxis("Roll")) > 9.0f) 
-		    || Input.GetMouseButtonDown(0)) && !isAttacking) {
-			originalPosition = spearHead.position;
+		    || Input.GetMouseButtonDown(0)) && !isAttacking && !isReturning) {
+			originalPosition = spearHead.localPosition;
 			originalRotation = spearHead.localEulerAngles;
 			isAttacking = true;
 		}
@@ -64,23 +69,24 @@ public class SpearController : MonoBehaviour {
 					}
 					catch {}
 					try {
-						currTarget.gameObject.GetComponentInParent<SandShark>().freeze();
+						currTarget.gameObject.GetComponentInParent<SandWorm>().freeze();
 					}
 					catch{}
+					this.GetComponent<AudioSource>().Play();
 					firstAttack = false;
 				}
 				attack (currTarget);
 			}
 			else {
-				// TODO: implement whiff
+				isAttacking = false;
 			}
 		}
 		else if(isReturning){
-			spearHead.position = Vector3.Lerp(spearHead.position, originalPosition, Time.deltaTime*5.0f);
+			spearHead.localPosition = Vector3.Lerp(spearHead.localPosition, originalPosition, Time.deltaTime*5.0f);
 			spearHead.localEulerAngles = Vector3.Lerp(spearHead.localEulerAngles, originalRotation, Time.deltaTime*5.0f);
-			if (Vector3.Distance(spearHead.position,originalPosition) < .2f) {
+			if (Vector3.Distance(spearHead.localPosition,originalPosition) < .2f) {
 				// Spear is close enough, lock it to correct transform
-				spearHead.position = originalPosition;
+				spearHead.localPosition = originalPosition;
 				spearHead.localEulerAngles = originalRotation;
 				isReturning = false;
 			}
@@ -101,7 +107,9 @@ public class SpearController : MonoBehaviour {
 
 
 	void OnTriggerEnter(Collider coll) {
+		if (coll.tag == "Enemy") {
 		currTarget = coll.transform;
+		}
 	}
 
 	void OnTriggerExit(Collider coll) {

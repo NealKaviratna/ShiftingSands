@@ -8,9 +8,11 @@ public class SandWorm : Enemy {
 	private float timer;
 	private float r;
 	
+	public AudioSource playerdeath;
+	
 	// Use this for initialization
 	void Start () {
-		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").collider;
+		this.terrain = (MeshCollider) GameObject.FindGameObjectWithTag("Terrain").GetComponent<Collider>();
 		this.target = GameObject.FindGameObjectWithTag("Player");
 		
 		this.timer = Random.Range(0, 7.0f);
@@ -62,9 +64,14 @@ public class SandWorm : Enemy {
 	}
 	
 	State combat() {
-		this.transform.position = Vector3.Lerp(this.transform.position,target.transform.position,this.speed*Time.deltaTime/10.0f);
+		// Turn towards target
+		Quaternion q = Quaternion.LookRotation(target.transform.position - this.transform.position);
+		this.transform.rotation = Quaternion.Lerp(this.transform.rotation, q, .015f);
+		this.transform.eulerAngles = new Vector3(0, this.transform.eulerAngles.y, this.transform.eulerAngles.z);
 		
-		// Keep sandshark 2 world units above Sand
+		// Move forward
+		transform.Translate(Vector3.forward * 4 * Time.deltaTime);
+
 		RaycastHit hit = new RaycastHit();
 		Ray r = new Ray(new Vector3(this.transform.position.x,100,this.transform.position.z), Vector3.down);
 		terrain.Raycast(r,out hit, 100);
@@ -72,5 +79,12 @@ public class SandWorm : Enemy {
 		this.transform.position = Vector3.Lerp(this.transform.position,dest,Time.deltaTime);
 		
 		return State.attacking;
+	}
+
+	void OnTriggerEnter(Collider coll) {
+		if (coll.tag == "Player") {
+			this.playerdeath.Play();
+			FindObjectOfType<SceneTransitionController>().fadeOut = true;
+		}
 	}
 }

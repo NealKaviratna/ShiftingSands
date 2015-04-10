@@ -34,6 +34,13 @@ public class TerrainGenerator : MonoBehaviour {
 		int quadCount = (Samples - 1) * (Samples - 1);
 		int[] triangles = new int[3 * 2 * quadCount];
 
+		Vector3[] trianglenormals = new Vector3[quadCount*2];
+		Vector3[] addednormals = new Vector3[Samples * Samples];
+		for (int i = 0; i < addednormals.Length; i++) {
+			addednormals[i] = Vector3.zero;
+		}
+		int[] totalAdded = new int[Samples * Samples];
+
 		// Create triangles TODO: add Normals for shaders
 		for (int t = 0; t < quadCount; t++) {
 			int i = t / (Samples - 1);
@@ -45,15 +52,40 @@ public class TerrainGenerator : MonoBehaviour {
 			triangles[6 * t + 3] = CalculateIndex(i + 1, j, Samples);
 			triangles[6 * t + 4] = CalculateIndex(i, j + 1, Samples);
 			triangles[6 * t + 5] = CalculateIndex(i + 1, j + 1, Samples);
+
+			trianglenormals[2*t] = Vector3.Cross((vertices[triangles[6 * t + 0]] - vertices[triangles[6 * t + 1]]),
+			                                     (vertices[triangles[6 * t + 0]] - vertices[triangles[6 * t + 2]]));
+			trianglenormals[2*t+1] = Vector3.Cross((vertices[triangles[6 * t + 3]] - vertices[triangles[6 * t + 4]]),
+			                                     (vertices[triangles[6 * t + 3]] - vertices[triangles[6 * t + 5]]));
+
+			addednormals[CalculateIndex(i + 1, j, Samples)] += trianglenormals[2*t];
+			totalAdded[CalculateIndex(i + 1, j, Samples)]++;
+			addednormals[CalculateIndex(i, j, Samples)] += trianglenormals[2*t];
+			totalAdded[CalculateIndex(i , j, Samples)]++;
+			addednormals[CalculateIndex(i , j + 1, Samples)] += trianglenormals[2*t];
+			totalAdded[CalculateIndex(i, j + 1, Samples)]++;
+
+			addednormals[CalculateIndex(i + 1, j, Samples)] += trianglenormals[2*t+1];
+			totalAdded[CalculateIndex(i + 1, j, Samples)]++;
+			addednormals[CalculateIndex(i, j + 1, Samples)] += trianglenormals[2*t+1];
+			totalAdded[CalculateIndex(i, j + 1, Samples)]++;
+			addednormals[CalculateIndex(i + 1, j + 1, Samples)] += trianglenormals[2*t+1];
+			totalAdded[CalculateIndex(i + 1, j + 1, Samples)]++;
+		}
+
+		for (int i = 0; i < addednormals.Length; i++) {
+			addednormals[i] /= totalAdded[i];
+			Vector3.Normalize(addednormals[i]);
 		}
 
 		Mesh mesh = new Mesh();
 		GetComponent<MeshFilter>().mesh = mesh;
-		GetComponent<MeshCollider>().mesh = mesh;
+		GetComponent<MeshCollider>().sharedMesh = mesh;
 		GetComponent<MeshCollider>().enabled = false;
 		mesh.vertices = vertices;
 		mesh.uv = uvs;
 		mesh.triangles = triangles;
+		mesh.normals = addednormals;
 	}
 	
 	// Update is called once per frame
