@@ -63,6 +63,7 @@ public class SandWorm : Enemy {
 			return State.searching;
 	}
 	
+	// TODO: Implement combat
 	State combat() {
 		// Turn towards target
 		Quaternion q = Quaternion.LookRotation(target.transform.position - this.transform.position);
