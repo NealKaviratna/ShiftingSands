@@ -22,9 +22,6 @@ public class SandWorm : Enemy {
 	
 	// Update is called once per frame
 	void Update () {
-		// Spin the sandshark - will probably remove if it doesn't work with Model to be used
-		//this.transform.Rotate(Time.deltaTime*500,Time.deltaTime*500,Time.deltaTime*500);
-		
 		// State-Machine
 		switch (this.state) {
 		case State.searching:
@@ -63,7 +60,7 @@ public class SandWorm : Enemy {
 			return State.searching;
 	}
 	
-	// TODO: Implement combat
+	// TODO: Implement combat - not being used currently
 	State combat() {
 		// Turn towards target
 		Quaternion q = Quaternion.LookRotation(target.transform.position - this.transform.position);
